@@ -3,12 +3,14 @@ import java.io.IOException;
 
 public class AccountThread implements Runnable {
 
-	public AccountThread(Container account, UserQuoueu q, Container msg){
+	public AccountThread(Container account, UserQuoueu q, 
+							CaptchaQuoueu c, Container msg){
 		System.out.println("new thread");
 		this.account = account;
 		this.message = msg;
 		quoueu = q;
 		q.addListener(this);
+		cQuoueu = c;
 	}
 	
 	@Override
@@ -18,7 +20,7 @@ public class AccountThread implements Runnable {
 		System.out.println("Starting sending @ " + account.first);
 		boolean addtofriend = false;
 		while(quoueu.isAvalible()){
-			if(pause){
+			if(pause || captcha){
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
@@ -45,7 +47,10 @@ public class AccountThread implements Runnable {
 				switch (res){
 				case -2:
 					quoueu.put(id);
-					if(count>5) capchaHandler();
+					if(count>5){
+						captcha = true;
+						cQuoueu.add(this);
+					}
 					break;
 				case -3:
 					quoueu.put(id);
@@ -63,18 +68,18 @@ public class AccountThread implements Runnable {
 		pause = false;
 	}
 	
-	private void capchaHandler(){
-		System.out.println("------------------");
-		System.out.println("Captcha detected.");
-		System.out.println("Login: " + account.first);
-		System.out.println("Pass: " + account.second);
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void fireCaptcha(){
+		captcha = false;
 	}
 	
+	public Container getAccount() {
+		return account;
+	}
+
+	public void setAccount(Container account) {
+		this.account = account;
+	}
+
 	private void timeout(){
 		try {
 			//System.out.println("Timeout");
@@ -85,9 +90,11 @@ public class AccountThread implements Runnable {
 	}
 	
 	private UserQuoueu quoueu;
+	private CaptchaQuoueu cQuoueu;
 	private Container account;
 	private Container message;
 	private Boolean pause = false;
+	private Boolean captcha = false;
 	private int count = 0;
 
 }

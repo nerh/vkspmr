@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Spamer {
 	public static void main(String args[]) throws InterruptedException{
@@ -15,6 +16,7 @@ public class Spamer {
 		LinkedList<Container> accounts = null;
 		LinkedList<Topic> topics = null;
 		UserQuoueu quoueu = null;
+		CaptchaQuoueu captcha = new CaptchaQuoueu();
 		try {
 			confReader = ConfigReader.createConfigReader("spamer.xml");
 		} catch (FileNotFoundException e) {
@@ -32,14 +34,29 @@ public class Spamer {
 		s.connect();
 		System.out.println("Getting ids from topics...");
 		ArrayList<String> ids = new ArrayList<String>();
-		for(Topic t : topics)
+		for(Topic t : topics){
+			System.out.println(t.url);
 			ids.addAll(s.getIdFromTopic(t));
+		}
 		System.out.println("Strating sending...");
 		ExecutorService pool = Executors.newCachedThreadPool();
 		for(Container a : accounts){
-			pool.execute(new AccountThread(a,quoueu, new Container(title, message)));
+			pool.execute(new AccountThread(a,quoueu,
+					captcha, new Container(title, message)));
 		}
 		pool.shutdown();
+
+		boolean running = false;
+		while(!running){
+			try{
+			 running = pool.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
+			} catch (Throwable t){
+				running = false;
+			}
+		}
+		
+		captcha.interrupt();
+		
 		System.out.println("Program stopped");
 		
 	}

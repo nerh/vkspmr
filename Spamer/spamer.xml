@@ -1,16 +1,13 @@
 <?xml-version="1.0"; encoding="UTF-8"?>
 <options>
 <list>
-<url>http://vkontakte.ru/topic-12586_21955707</url>
-<start>19</start>
-<end></end>
+<url>http://vkontakte.ru/topic-1485_1228317</url>
+<start>1</start>
+<end>2</end>
 </list>
-<list>
-<url>http://vkontakte.ru/topic-12586_21955707</url>
-<start>19</start>
-<end></end>
-</list>
+
 <party></party>
+
  <user>
   <login>drunkfil@mail.ru</login>
   <pass>nf~vLwj9</pass>

@@ -68,8 +68,7 @@ public class SessionVK implements Session {
 		
 		if(topic.end<=page) end = ((overall/20)%1==0)?
 							(overall/20)+1:(overall/20)+2;
-		else end = topic.end;
-		
+		else end = topic.end-1;
 		while(page<end){
 			from_page = parser.getIdFromTopicPage(
 					getTopicPage(topic, page));
@@ -106,7 +105,7 @@ public class SessionVK implements Session {
 		} catch (UnsupportedEncodingException e) {
 			logger.printExceptionInfo(e);
 		}
-		System.out.println(id);
+		//System.out.println(id);
 		page = getPage("http://vkontakte.ru/id"+id);
 
 		postData = preparePostOnWallParams(page,message);
