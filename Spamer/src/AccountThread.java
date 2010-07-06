@@ -1,25 +1,38 @@
 import java.io.IOException;
+import java.util.Random;
 
 
 public class AccountThread implements Runnable {
 
 	public AccountThread(Container account, UserQuoueu q, 
 							CaptchaQuoueu c, Container msg){
-		System.out.println("new thread");
+		//System.out.println("new thread");
 		this.account = account;
 		this.message = msg;
 		quoueu = q;
 		q.addListener(this);
 		cQuoueu = c;
+		//System.out.println("Quit cinstructor");
 	}
 	
 	@Override
 	public void run() {
 		SessionVK session = new SessionVK(account);
+		boolean loggedin = false;
+		while(!loggedin){
+			if(!captcha)
+			if(session.connect()==-1){
+				captcha = true;
+				cQuoueu.add(this);
+			} else {
+				loggedin = true;
+			}
+		}
 		String id = null;
 		System.out.println("Starting sending @ " + account.first);
 		boolean addtofriend = false;
-		while(quoueu.isAvalible()){
+		boolean dot = false;
+		while(quoueu.isAvalible() && running){
 			if(pause || captcha){
 				try {
 					Thread.sleep(2000);
@@ -28,11 +41,13 @@ public class AccountThread implements Runnable {
 				}
 			} else if(null != (id = quoueu.take())){
 				int res = 0;
+				dot = !dot;
 				if(!addtofriend)
-					res = session.sendMessage(id, message.second, 
-						message.first);
+					res = session.sendMessage(id, message.second+ (dot?".":"..") + 
+									(char)(rand.nextInt()%(122-97) + 97), 
+									message.first );
 				else{ 
-					res = session.addToFriends(id, message.second);
+					res = session.addToFriends(id, message.second+ (dot?'.':".."));
 					addtofriend = false;
 				}
 				
@@ -96,5 +111,7 @@ public class AccountThread implements Runnable {
 	private Boolean pause = false;
 	private Boolean captcha = false;
 	private int count = 0;
+	private Random rand = new Random();
+	public boolean running = true;
 
 }

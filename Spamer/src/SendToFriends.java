@@ -36,6 +36,7 @@ public class SendToFriends {
 			String frPg = " ";
 			while(frPg.length()<100){
 				frPg = ses.getFriendsPage();
+				//System.out.println(frPg);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

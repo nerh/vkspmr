@@ -28,7 +28,7 @@ public class SessionVK implements Session {
 	
 	@SuppressWarnings("restriction")
 	@Override
-	public void connect() {
+	public int connect() {
 		String SID = null;
 		String pg = "";
 		PostMethod post = new PostMethod("http://login.vk.com/?act=login");
@@ -37,10 +37,14 @@ public class SessionVK implements Session {
 		post.addParameter("expire", "");
 		post.addParameter("vk", "");
 		post.addRequestHeader("Cookie", "remixlang=3; remixchk=5");
+		int counter = 0;
 		while(pg.length()<10){
+			if(counter == 15)
+				return -1;
 		try {
 			httpClient.executeMethod(post);
 			pg=post.getResponseBodyAsString();
+			//System.out.println(pg);
 		} catch (HttpException e) {
 			logger.printExceptionInfo(e);
 		} catch (IOException e) {
@@ -54,6 +58,7 @@ public class SessionVK implements Session {
 		setCookie(SID);
 		//System.out.println(SID);
 		//System.out.println(this.cookie);
+		return 0;
 	}
 	
 	public LinkedList<String> getIdFromTopic(Topic topic){
@@ -139,6 +144,7 @@ public class SessionVK implements Session {
 		String postData = null,
 		page = null,
 		result = null;
+		//System.out.println(message);
 		try {
 			message = URLEncoder.encode(message, "UTF-8");
 			title = URLEncoder.encode(title, "UTF-8");
@@ -148,7 +154,7 @@ public class SessionVK implements Session {
 		
 		page = " ";
 		while(page.length()<25 || page.contains("В Контакте | Ошибка")){
-			page = getPage("http://vkontakte.ru/mail.php?act=write&to="+id);
+			page = getPage("http://vkontakte.ru/mail.php?act=write&to="+id+"&ajax=0");
 			if(page.contains("Вы не можете отправить сообщение данному пользователю"))
 				return -4;
 			if(page.contains("В Контакте | Ошибка")){
@@ -160,12 +166,14 @@ public class SessionVK implements Session {
 					e.printStackTrace();
 				}
 			}
+			//System.out.println(page);
 		}
-		
-		postData = prepareSendParamsToId(page,id,title,message);
+		//System.out.println("---");
+		postData = prepareSendParamsToId(page,id,message,title);
 		//System.out.println(postData);
 		result = getPage("http://vkontakte.ru/mail.php?"+postData);
-		if(result==null) return -3;
+		//System.out.println(result);
+		if(result==null || result=="" || result.contains("Security error")) return -3;
 		if(result!=null && result.contains("captcha_sid")){		
 			return -2;
 		}
@@ -216,7 +224,7 @@ public class SessionVK implements Session {
 		StringBuilder params = new StringBuilder();
 		clearChas = parser.getChas(page);
 		chas = Decoder.decodeWallHash(clearChas);
-		params.append("act=sent&ajax=1&misc=1&secure=")
+		params.append("act=sent&ajax=1&misc=1&secure=3ae6")
 		  .append("&chas=")
 		  .append(chas)
 		  .append("&photo=")

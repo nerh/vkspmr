@@ -45,6 +45,10 @@ public class UserQuoueu {
 		listeners.remove(l);
 	}
 	
+	public LinkedList<String> getUsers() {
+		return users;
+	}
+
 	private LinkedList<String> users;
 	private ArrayList<AccountThread> listeners;
 	private int blockedCount = 0; 

@@ -234,7 +234,7 @@ public class Parser {
 	 * подстрока tag. Поиск подстроки ведется начиная с символа start.
 	 * Если подстрока не найдена - функция вернет -1.
 	 */
-	private int getNextTagPos(String source, String tag, int start_from){
+	public int getNextTagPos(String source, String tag, int start_from){
 		boolean flag = true;
 		int i = start_from,s_pos=0;
 		if(source==null) return -1;
