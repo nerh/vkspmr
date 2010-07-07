@@ -39,11 +39,12 @@ public class SessionVK implements Session {
 		post.addRequestHeader("Cookie", "remixlang=3; remixchk=5");
 		int counter = 0;
 		while(pg.length()<10){
-			if(counter == 15)
+			if(counter == 5)
 				return -1;
 		try {
 			httpClient.executeMethod(post);
 			pg=post.getResponseBodyAsString();
+			counter++;
 			//System.out.println(pg);
 		} catch (HttpException e) {
 			logger.printExceptionInfo(e);

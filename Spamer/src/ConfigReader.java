@@ -61,4 +61,8 @@ public class ConfigReader {
 		return parser.getMessage(configFile);
 	}
 	
+	public Restriction getRestriction(){
+		return parser.getRestriction(configFile);
+	}
+	
 }

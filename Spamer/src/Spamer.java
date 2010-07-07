@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Spamer {
 	public static void main(String args[]) throws InterruptedException{
+		SessionRestorer sessionRestorer = null;
 		Logger logger = Logger.createLogger();
 		ConfigReader confReader = null;
 		String message = null;
@@ -18,6 +19,7 @@ public class Spamer {
 		LinkedList<Topic> topics = null;
 		ArrayList<AccountThread> runningAccounts= new ArrayList<AccountThread>();
 		UserQuoueu quoueu = null;
+		Restriction restriction = null;
 		CaptchaQuoueu captcha = new CaptchaQuoueu();
 		try {
 			confReader = ConfigReader.createConfigReader("spamer.xml");
@@ -32,54 +34,97 @@ public class Spamer {
 		title = confReader.getTitle();
 		accounts = confReader.getAccountList();
 		topics = confReader.getTargetList();
-		SessionVK s = new SessionVK(accounts.get(0));
-		s.connect();
+		restriction = confReader.getRestriction();
+		sessionRestorer = new SessionRestorer();
+		ArrayList<String> to_restore = null;
+		boolean restore_readed = true;
+		boolean send_restore = false;
 		
-		System.out.println("Getting ids from topics...");
-		LinkedList<String> ids = new LinkedList<String>();
-		for(Topic t : topics){
-			System.out.println(t.url);
-			ids.addAll(s.getIdFromTopic(t));
+		try {
+			sessionRestorer.open("resend", SessionRestorer.READ);
+			to_restore = (ArrayList<String>) sessionRestorer.read();
+		} catch (IOException e2) {
+			restore_readed = false;
+			logger.printExceptionInfo(e2);
 		}
-		quoueu = new UserQuoueu(ids);
-		System.out.println("Accounts count is " + ids.size());
+		
+		if(restore_readed == true && to_restore != null){
+			System.out.println("Send old? y/n");
+			try {
+				int r = System.in.read();
+				if(r=='y')
+					send_restore = true;
+			} catch (IOException e) {
+				logger.printExceptionInfo(e);
+			}
+		}
+		
+		if(!send_restore){
+			SessionVK s = new SessionVK(accounts.get(0));
+			int res;
+			while(-1==(res = s.connect())){
+				System.out.println("------------------");
+				System.out.println("Captcha detected.");
+				System.out.println("Login: " + accounts.get(0).first);
+				System.out.println("Pass: " + accounts.get(0).second);
+			}
+			
+			System.out.println("Getting ids from topics...");
+			LinkedList<String> ids = new LinkedList<String>();
+			for(Topic t : topics){
+				System.out.println(t.url);
+				ids.addAll(s.getIdFromTopic(t));
+			}
+			quoueu = new UserQuoueu(ids);
+		} else {
+			quoueu = new UserQuoueu(new LinkedList<String>(to_restore));
+		}
+		System.out.println("Accounts count is " + quoueu.getUsers().size());
 		System.out.println("Strating sending...");
 		ExecutorService pool = Executors.newCachedThreadPool();
 		pool.execute(captcha);
 		for(Container a : accounts){
 			AccountThread at = new AccountThread(a,quoueu,
-					captcha, new Container(title, message));
+					captcha, new Container(title, message), restriction);
 			runningAccounts.add(at);
 			pool.execute(at);
 		}
 		pool.execute(new InfoThread(runningAccounts, quoueu));
 		pool.shutdown();
-
-		//boolean running = false;
-		/*while(!running){
-			try{
-			 running = pool.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
-			} catch (Throwable t){
-				running = false;
-			}
-		}
-		
-		captcha.interrupt();
-		*/
 		
 		while(runningAccounts.size()>0){
+			int running = 0;
 			for(AccountThread t : runningAccounts){
-				if(!t.running)
-					runningAccounts.remove(t);
+				if(t.running)
+					running++;
 			}
-			Thread.sleep(1000);
+			if(running==0) break;
 		}
-		for(AccountThread t : runningAccounts){
-			if(t.running)
-				t.running = false;
-		}
-		System.out.println("Program stopped");
+		captcha.interrupt();
+		pool.shutdownNow();
 		
+		boolean restored = true;
+		
+		try {
+			sessionRestorer.open("resend", SessionRestorer.WRITE);
+			sessionRestorer.write(quoueu.getUsers());
+			sessionRestorer.close();
+		} catch (IOException e1) {
+			logger.printExceptionInfo(e1);
+			restored = false;
+		}
+		
+		if(!restored){
+			System.out.println(quoueu.getUsers());
+		}
+		
+		System.out.println("Program stopped");
+		try {
+			System.in.read();
+			System.in.read();
+			System.in.read();
+		} catch (IOException e) {
+		}
 	}
 	
 }

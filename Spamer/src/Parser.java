@@ -216,6 +216,35 @@ public class Parser {
 		return ids;
 	}
 	
+	public Restriction getRestriction(String source){
+		Restriction result = new Restriction(-1,-1);
+		int s_pos = 0, e_pos = 0;
+		s_pos = this.getNextTagPos(source, "<restriction>", 0) +
+			"<restriction>".length();
+		e_pos = this.getNextTagPos(source, "</restriction>", s_pos);
+		String content = source.substring(s_pos, e_pos);
+		
+		s_pos = this.getNextTagPos(content, "<messages>", 0) +
+			"<messages>".length();
+		e_pos = this.getNextTagPos(content, "</messages>", s_pos);
+		
+		String msgs = content.substring(s_pos,e_pos);
+		
+		s_pos = this.getNextTagPos(content, "<friends>", 0) +
+		"<friends>".length();
+		e_pos = this.getNextTagPos(content, "</friends>", s_pos);
+	
+		String frns = content.substring(s_pos,e_pos);
+		
+		try{
+			result.messages = new Integer(msgs);
+		} catch (Throwable t){}
+		try{
+			result.friends = new Integer(frns);
+		} catch (Throwable t){}
+		return result;
+	}
+	
 	/*
 	 * Возвращает содержимое xml узла
 	 */

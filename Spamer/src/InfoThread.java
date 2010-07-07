@@ -10,15 +10,20 @@ public class InfoThread implements Runnable {
 	
 	@Override
 	public void run() {
-		while(true){
-			System.out.println("Active accounts: " + a.size());
+		int aa = 1;
+		while(aa>0){
+			aa = 0;
+			for(AccountThread ac : a){
+				if(ac.running){
+					aa++;
+				}
+			}
+			System.out.println("Active accounts: " + aa);
 			System.out.println("Users waiting their messages: " + 
 					u.getUsers().size());
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 

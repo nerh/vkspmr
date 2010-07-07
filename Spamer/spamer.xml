@@ -2,8 +2,8 @@
 <options>
 <list>
 <url>http://vkontakte.ru/topic-3369805_13432535</url>
-<start>8</start>
-<end></end>
+<start>1</start>
+<end>2</end>
 </list>
 <party></party>
 <user>
@@ -95,6 +95,10 @@
 <pass>0181808</pass>
 </user>
 
+<restriction>
+<friends>0</friends>
+<messages>0</messages>
+</restriction>
  
 <title></title>
 <message>

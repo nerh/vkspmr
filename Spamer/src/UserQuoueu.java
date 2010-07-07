@@ -1,10 +1,11 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class UserQuoueu {
 
 	public UserQuoueu(LinkedList<String> u){
-		this.users = u;
+		this.users = (LinkedList<String>) u;
 		this.listeners = new ArrayList<AccountThread>();
 	}
 	

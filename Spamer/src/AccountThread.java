@@ -5,13 +5,14 @@ import java.util.Random;
 public class AccountThread implements Runnable {
 
 	public AccountThread(Container account, UserQuoueu q, 
-							CaptchaQuoueu c, Container msg){
+							CaptchaQuoueu c, Container msg, Restriction r){
 		//System.out.println("new thread");
 		this.account = account;
 		this.message = msg;
 		quoueu = q;
 		q.addListener(this);
 		cQuoueu = c;
+		restrictions = r;
 		//System.out.println("Quit cinstructor");
 	}
 	
@@ -19,7 +20,11 @@ public class AccountThread implements Runnable {
 	public void run() {
 		SessionVK session = new SessionVK(account);
 		boolean loggedin = false;
-		while(!loggedin){
+		if(restrictions.messages==0){
+			running = false;
+			return;
+		}
+		while(!loggedin && quoueu.isAvalible()){
 			if(!captcha)
 			if(session.connect()==-1){
 				captcha = true;
@@ -32,7 +37,8 @@ public class AccountThread implements Runnable {
 		System.out.println("Starting sending @ " + account.first);
 		boolean addtofriend = false;
 		boolean dot = false;
-		while(quoueu.isAvalible() && running){
+		while(quoueu.isAvalible() && running && (restrictions.messages>-1 && messages_send>=restrictions.messages))
+		{
 			if(pause || captcha){
 				try {
 					Thread.sleep(2000);
@@ -49,6 +55,7 @@ public class AccountThread implements Runnable {
 				else{ 
 					res = session.addToFriends(id, message.second+ (dot?'.':".."));
 					addtofriend = false;
+					friends_added++;
 				}
 				
 				count = (res==-2?count+1:0);
@@ -60,6 +67,9 @@ public class AccountThread implements Runnable {
 				}
 				
 				switch (res){
+				case 0:
+					messages_send++;
+					break;
 				case -2:
 					quoueu.put(id);
 					if(count>5){
@@ -72,11 +82,20 @@ public class AccountThread implements Runnable {
 					timeout();
 					break;
 				case -4:
-					addtofriend = true;
+					if(restrictions.friends>-1 
+							&& restrictions.friends>this.friends_added)
+						addtofriend = true;
+					else
+						quoueu.put(id);
 					break;
 				}
 			}
+			if(restrictions.messages>-1 && messages_send>=restrictions.messages){
+				running = false;
+			}
 		}
+		running = false;
+		System.out.println("stopped");
 	}
 	
 	public void fire(){
@@ -112,6 +131,8 @@ public class AccountThread implements Runnable {
 	private Boolean captcha = false;
 	private int count = 0;
 	private Random rand = new Random();
+	private Restriction restrictions;
 	public boolean running = true;
+	private int messages_send = 0, friends_added = 0;
 
 }

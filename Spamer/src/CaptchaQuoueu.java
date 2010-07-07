@@ -23,7 +23,6 @@ public class CaptchaQuoueu implements Runnable{
 		running = true;
 		while(running){
 			if(accounts.size()>0){
-				System.out.println("woooow");
 				AccountThread a = accounts.pop();
 				captchaHandler(a);
 				a.fireCaptcha();
