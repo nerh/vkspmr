@@ -32,7 +32,18 @@ public class SendToFriends {
 			System.out.println("Starting on " + acc.first);
 			SessionVK ses = new SessionVK(acc);
 			LinkedList<String> friends = null;
-			ses.connect();
+			int res;
+			while(-1 == (res = ses.connect())){
+				System.out.println("------------------");
+				System.out.println("Captcha detected.");
+				System.out.println("Login: " + acc.first);
+				System.out.println("Pass: " + acc.second);
+				try {
+					System.in.read();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 			String frPg = " ";
 			while(frPg.length()<100){
 				frPg = ses.getFriendsPage();
@@ -54,17 +65,18 @@ public class SendToFriends {
 			double all = friends.size();
 			double done = 0;
 			boolean ch = true;
-			for(int i = 0; i<friends.size()/10; i++)
+			for(int i = 0; i<friends.size()/10 || (friends.size() < 10 && i<1); i++)
 			{
 				ch = !ch;
 				int count = 0;
-				int res = -1;
+				res = -1;
 				while(res!=0){
 					
 
 						int s, en;
 						s = i*10;
-						en = (i+1)*10 > friends.size()-1 ? friends.size()-1 : (i+1)*10;
+						en = (i+1)*10 > friends.size()-1 ? friends.size() : (i+1)*10;
+						//System.out.println(friends.subList(s,en));
 					res = ses.sendToFriends(friends.subList(s,en), message + (ch ? "\n." : "\n.."), title);
 					//res = 0;
 				//	System.out.println(friends);
@@ -91,13 +103,13 @@ public class SendToFriends {
 						}
 						//TODO: captcha handler
 					}
-					done+=10;
+					
 					}
-				
+					done+=10;
 				System.out.println((100/all)*done + " % done");
 				}
 			
-			System.out.println("All messages from was" + acc.first +  "sended.");
+			System.out.println("All messages from " + acc.first +  " were sended.");
 		}
 
 	}

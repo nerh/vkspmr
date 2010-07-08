@@ -1,6 +1,2 @@
-java.lang.InterruptedException: sleep interrupted
-	at java.lang.Thread.sleep(Native Method)
-	at InfoThread.run(InfoThread.java:26)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-	at java.lang.Thread.run(Unknown Source)
+Jul 9, 2010 1:55:27 AM org.apache.commons.httpclient.HttpMethodBase getResponseBody
+WARNING: Going to buffer response body of large or unknown size. Using getResponseBodyAsStream instead is recommended.

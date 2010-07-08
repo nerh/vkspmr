@@ -26,10 +26,11 @@ public class InfoThread implements Runnable {
 			} catch (InterruptedException e) {
 			}
 		}
-
+		running = false;
 	}
 	
 	private ArrayList<AccountThread> a;
 	private UserQuoueu u;
+	public boolean running = true;
 
 }

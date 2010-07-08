@@ -9,7 +9,7 @@ public class UserQuoueu {
 		this.listeners = new ArrayList<AccountThread>();
 	}
 	
-	public String take(){
+	public synchronized String take(){
 		if(users.size()>0){
 			this.blockedCount++;
 			return users.pop();
@@ -18,7 +18,7 @@ public class UserQuoueu {
 		}
 	}
 	
-	public void put(String u){
+	public synchronized void put(String u){
 		if(this.blockedCount > 0){
 			users.push(u);
 			blockedCount--;
@@ -32,6 +32,11 @@ public class UserQuoueu {
 		for(int i = 0; i<listeners.size(); i++){
 			listeners.get(i).fire();
 		}
+	}
+	
+	public synchronized void unblock(){
+		blockedCount--;
+		fireListeners();
 	}
 	
 	public boolean isAvalible(){
@@ -52,5 +57,5 @@ public class UserQuoueu {
 
 	private LinkedList<String> users;
 	private ArrayList<AccountThread> listeners;
-	private int blockedCount = 0; 
+	public int blockedCount = 0; 
 }

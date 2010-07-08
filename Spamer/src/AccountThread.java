@@ -18,8 +18,11 @@ public class AccountThread implements Runnable {
 	
 	@Override
 	public void run() {
+		String id = null;
+		try{
 		SessionVK session = new SessionVK(account);
 		boolean loggedin = false;
+		this.running = true;
 		if(restrictions.messages==0){
 			running = false;
 			return;
@@ -33,11 +36,12 @@ public class AccountThread implements Runnable {
 				loggedin = true;
 			}
 		}
-		String id = null;
+		
 		System.out.println("Starting sending @ " + account.first);
 		boolean addtofriend = false;
 		boolean dot = false;
-		while(quoueu.isAvalible() && running && (restrictions.messages>-1 && messages_send>=restrictions.messages))
+		while(quoueu.isAvalible() && running && (
+					(restrictions.messages>-1 && messages_send>=restrictions.messages)||restrictions.messages==-1))
 		{
 			if(pause || captcha){
 				try {
@@ -45,14 +49,17 @@ public class AccountThread implements Runnable {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			} else if(null != (id = quoueu.take())){
+			} else {
 				int res = 0;
 				dot = !dot;
-				if(!addtofriend)
-					res = session.sendMessage(id, message.second+ (dot?".":"..") + 
+				if(!addtofriend){
+					if(null != (id = quoueu.take()))
+						res = session.sendMessage(id, message.second+ (dot?".":"..") + 
 									(char)(rand.nextInt()%(122-97) + 97), 
 									message.first );
-				else{ 
+					else
+						continue;
+				}else{ 
 					res = session.addToFriends(id, message.second+ (dot?'.':".."));
 					addtofriend = false;
 					friends_added++;
@@ -68,10 +75,13 @@ public class AccountThread implements Runnable {
 				
 				switch (res){
 				case 0:
+					id = null;
 					messages_send++;
+					quoueu.unblock();
 					break;
 				case -2:
 					quoueu.put(id);
+					id = null;
 					if(count>5){
 						captcha = true;
 						cQuoueu.add(this);
@@ -79,23 +89,27 @@ public class AccountThread implements Runnable {
 					break;
 				case -3:
 					quoueu.put(id);
+					id = null;
 					timeout();
 					break;
 				case -4:
-					if(restrictions.friends>-1 
-							&& restrictions.friends>this.friends_added)
+					if(restrictions.friends==-1 || (restrictions.friends>-1 
+							&& restrictions.friends>this.friends_added))
 						addtofriend = true;
 					else
 						quoueu.put(id);
+					id = null;
 					break;
 				}
 			}
-			if(restrictions.messages>-1 && messages_send>=restrictions.messages){
-				running = false;
-			}
+			Thread.yield();
 		}
 		running = false;
-		System.out.println("stopped");
+		} catch (Throwable e){
+			if(id!=null)
+				quoueu.put(id);
+			this.running = false;
+		}
 	}
 	
 	public void fire(){

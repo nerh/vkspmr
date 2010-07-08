@@ -89,7 +89,8 @@ public class Spamer {
 			runningAccounts.add(at);
 			pool.execute(at);
 		}
-		pool.execute(new InfoThread(runningAccounts, quoueu));
+		InfoThread info = new InfoThread(runningAccounts, quoueu);
+		pool.execute(info);
 		pool.shutdown();
 		
 		while(runningAccounts.size()>0){
@@ -100,11 +101,14 @@ public class Spamer {
 			}
 			if(running==0) break;
 		}
-		captcha.interrupt();
 		pool.shutdownNow();
 		
 		boolean restored = true;
-		
+		while(info.running){
+			Thread.sleep(1000);
+			Thread.yield();
+		}
+		captcha.interrupt();
 		try {
 			sessionRestorer.open("resend", SessionRestorer.WRITE);
 			sessionRestorer.write(quoueu.getUsers());
@@ -124,6 +128,7 @@ public class Spamer {
 			System.in.read();
 			System.in.read();
 		} catch (IOException e) {
+			
 		}
 	}
 	

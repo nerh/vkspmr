@@ -209,8 +209,9 @@ public class SessionVK implements Session {
 		//System.err.println(page);
 		//System.err.println("-------------------------------------\n\n\n");
 		postData = prepareSendParamsToFriends(page,ids,title,message);
-		//System.out.println(postData);
+	//	System.out.println(postData);
 		result = getPage("http://vkontakte.ru/mail.php?"+postData);
+		//System.out.println(result);
 		if(result==null) return -3;
 		if(result!=null && result.contains("captcha_sid")){		
 			return -2;
@@ -267,6 +268,7 @@ public class SessionVK implements Session {
 			  .append(title)
 			  .append("&message=")
 			  .append(message)
+			  .append("&oid=&fid=&vid=&aid=")
 			  .append("&to_ids=")
 			  .append(targets.toString());
 		return params.toString();

@@ -1,9 +1,9 @@
 <?xml-version="1.0"; encoding="UTF-8"?>
 <options>
 <list>
-<url>http://vkontakte.ru/topic-3369805_13432535</url>
-<start>1</start>
-<end>2</end>
+<url>http://vkontakte.ru/topic-3369805_21094118</url>
+<start></start>
+<end></end>
 </list>
 <party></party>
 <user>
@@ -74,35 +74,16 @@
 <login>stasrublev8@rambler.ru</login>
 <pass>0181808</pass>
 </user>
-<user>
-<login>vanyashedevr@mail15.com</login>
-<pass>0181808</pass>
-</user>
-<user>
-<login>vanyashedevr@mail333.com</login>
-<pass>0181808</pass>
-</user>
-<user>
-<login>vanyashedevr@nightmail.ru</login>
-<pass>0181808</pass>
-</user>
-<user>
-<login>vanyashedevr@pochtamt.ru</login>
-<pass>0181808</pass>
-</user>
-<user>
-<login>vanyashedevr@pop3.ru</login>
-<pass>0181808</pass>
-</user>
 
 <restriction>
-<friends>0</friends>
-<messages>0</messages>
+<friends></friends>
+<messages></messages>
 </restriction>
  
 <title></title>
 <message>
-10 Июня ТУСА в Disco Bar'e РАДИ СЛАВЫ !!
+17 Июля, Суббота 
+http://vkontakte.ru/club1275386
 </message>
 <black>id33411134</black>
 <black>id314482</black>
